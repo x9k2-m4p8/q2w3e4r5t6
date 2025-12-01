@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Popups Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+
+        :root {
+            --bg-dark: #1a1225;
+            --bg-light-purple: #2a1b3d;
+            --text-grey: #a0a0a0;
+            --text-white: #ffffff;
+            --input-bg: #322a45;
+            --input-border: #4a4063;
+            --btn-orange-start: #ff6b4a;
+            --btn-orange-end: #ff8c6a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at center, #3a2b50 0%, var(--bg-dark) 70%);
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--text-white);
+            position: relative; 
+        }
+
+        .section-wrapper {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            
+
+            transition: opacity 0.3s ease-in-out;
+            
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 40px 0;
+            box-sizing: border-box;
+        }
+
+        #hero-section {
+            opacity: 1;
+            z-index: 10;
+        }
+
+        #results-section {
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            height: auto;
+            position: relative;
+            min-height: auto;
+        }
+
+        #results-section #popup-injection-wrapper {
+            min-height: auto !important;
+            height: auto !important;
+            padding: 20px 0 !important;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            text-align: center;
+        }
+
+        .content-left {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: rgb(255, 255, 255);
+            border: 1px solid #ffffff;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            background-image: rgba(255, 255, 255, 0.445);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            box-shadow: 0 0px 15px rgb(255, 255, 255);
+        }
+        
+        .ai-badge span { margin-right: 8px; }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin: 0 0 1.5rem 0;
+            color: #e0e0e0;
+        }
+
+        .sub-text {
+            font-size: 1.2rem;
+            color: var(--text-grey);
+            margin-bottom: 3rem;
+            font-weight: 400;
+        }
+
+        .input-group {
+            display: flex;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            padding: 6px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            padding: 16px 20px;
+            font-size: 1rem;
+            color: var(--text-white);
+            font-family: inherit;
+            outline: none;
+        }
+        input[type="text"]::placeholder { color: #7a728a; }
+
+        .primary-btn {
+            background: linear-gradient(to right, var(--btn-orange-start), var(--btn-orange-end));
+            color: white;
+            border: none;
+            padding: 0 32px;
+            height: 54px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            white-space: nowrap;
+            min-width: 140px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .primary-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 74, 0.4);
+        }
+        
+        .primary-btn:disabled { opacity: 0.8; cursor: wait; }
+
+        .restart-btn-container {
+            margin-top: 20px;
+            margin-bottom: 80px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .secondary-btn {
+            background: linear-gradient(to right, var(--btn-orange-start), var(--btn-orange-end));
+
+            color: white;
+            padding: 14px 40px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .secondary-btn:hover {
+            background: var(--btn-orange-start);;
+            border-color: var(--btn-orange-start);
+            color: white;
+            background: rgba(255, 107, 74, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #ffffff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #injected-content {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        @media (max-width: 968px) {
+            h1 { font-size: 3rem; }
+            .input-group { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="hero-section" class="section-wrapper">
+        <div class="container">
+            <div class="content-left">
+                <div class="ai-badge">
+                    <img src="https://optimonk.hu/wp-content/uploads/optimonk-logo-2024-1.svg" alt="">
+                </div>
+                <h1>
+                    Smarter Popups<br>
+                    made by OptiMonk
+                </h1>
+                <p class="sub-text">
+                    Enter your online store URL to create AI popup previews.
+                </p>
+
+                <div class="input-group">
+                    <input type="text" id="domainUrl" placeholder="Enter online store URL" required>
+                    <button id="generateBtn" class="primary-btn">Get started</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="results-section" class="section-wrapper">
+        <div id="injected-content"></div>
+        <div class="restart-btn-container">
+            <button id="restartBtn" class="primary-btn">Generate Again</button>
+        </div>
+    </div>
+
+    <script>
+        const WEBHOOK_URL = 'https://omaigen.tamas-papp.workers.dev';
+
+        const heroSection = document.getElementById('hero-section');
+        const resultsSection = document.getElementById('results-section');
+        const injectedContent = document.getElementById('injected-content');
+        
+        const generateBtn = document.getElementById('generateBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const urlInput = document.getElementById('domainUrl');
+
+        generateBtn.addEventListener('click', async () => {
+            const inputVal = urlInput.value.trim();
+
+            if (!inputVal) {
+                shakeInput();
+                return;
+            }
+
+            const originalBtnText = generateBtn.innerHTML;
+            generateBtn.innerHTML = '<div class="loader"></div>';
+            generateBtn.disabled = true;
+
+            try {
+                const fullUrl = `${WEBHOOK_URL}?url=${encodeURIComponent(inputVal)}`;
+                const response = await fetch(fullUrl, { method: 'POST' });
+
+                if (response.ok) {
+                    const htmlContent = await response.text();
+                    injectedContent.innerHTML = htmlContent;
+
+                    heroSection.style.opacity = '0';
+                    heroSection.style.pointerEvents = 'none';
+
+                    setTimeout(() => {
+                        heroSection.style.display = 'none';
+                        
+                        resultsSection.style.display = 'flex';
+                        resultsSection.style.position = 'relative'; 
+
+                        setTimeout(() => {
+                            resultsSection.style.opacity = '1';
+                            resultsSection.style.pointerEvents = 'auto';
+                        }, 50);
+
+                    }, 300); 
+
+                } else {
+                    alert('Hiba történt. Próbáld újra.');
+                }
+
+            } catch (error) {
+                console.error('Hiba:', error);
+                alert('Nem sikerült elérni a szervert.');
+            } finally {
+                generateBtn.innerHTML = originalBtnText;
+                generateBtn.disabled = false;
+            }
+        });
+
+        restartBtn.addEventListener('click', () => {
+            resultsSection.style.opacity = '0';
+            resultsSection.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                resultsSection.style.display = 'none';
+                injectedContent.innerHTML = ''; 
+
+                heroSection.style.display = 'flex'; 
+                heroSection.style.position = 'absolute'; 
+                urlInput.value = '';
+                
+                setTimeout(() => {
+                    heroSection.style.opacity = '1';
+                    heroSection.style.pointerEvents = 'auto';
+                }, 50);
+
+            }, 300);
+        });
+
+        urlInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') generateBtn.click();
+        });
+
+        function shakeInput() {
+            urlInput.style.borderColor = '#ff4a4a';
+            urlInput.placeholder = 'Please enter a URL first!';
+            setTimeout(() => {
+                 urlInput.style.borderColor = '#4a4063';
+                 urlInput.placeholder = 'Enter online store URL';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
