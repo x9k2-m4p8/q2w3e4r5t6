@@ -1,330 +1,304 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Popups Generator</title>
+<body>
+<div class="aipopupcontainer" style="display: flex; justify-content: center; width: 100%; height: 650px; margin-bottom: 2rem;">
+
+    <div id="om-widget-root">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
+        /* BIZTONSÁGI ZÓNA */
+        #om-widget-root {
+            --om-bg-dark: #1a1225;
+            --om-input-bg: #ffffff;
+            --om-input-border: #4a4063;
+            --om-btn-start: #ff6b4a;
+            --om-btn-end: #ff8c6a;
+            --om-text-white: #ffffff;
+            --om-text-grey: #a0a0a0;
 
-        :root {
-            --bg-dark: #1a1225;
-            --bg-light-purple: #2a1b3d;
-            --text-grey: #a0a0a0;
-            --text-white: #ffffff;
-            --input-bg: #322a45;
-            --input-border: #4a4063;
-            --btn-orange-start: #ff6b4a;
-            --btn-orange-end: #ff8c6a;
-        }
-
-        body {
+            all: initial;
             font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at center, #3a2b50 0%, var(--bg-dark) 70%);
-            margin: 0;
-            min-height: 100vh;
-            overflow-x: hidden;
-            color: var(--text-white);
-            position: relative; 
-        }
-
-        .section-wrapper {
+            
+            background: rgba(26, 18, 37, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 
+                        0 0 0 1px rgba(0,0,0,0.2);
+            
+            display: flex;             
+            flex-direction: column;    
+            justify-content: center;   
+            align-items: center;       
+            
             width: 100%;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            height: 100% !important;   
+            padding: 20px;
             
-
-            transition: opacity 0.3s ease-in-out;
-            
-            position: absolute;
-            top: 0;
-            left: 0;
-            padding: 40px 0;
-            box-sizing: border-box;
-        }
-
-        #hero-section {
-            opacity: 1;
-            z-index: 10;
-        }
-
-        #results-section {
-            opacity: 0;
-            z-index: 1;
-            pointer-events: none;
-            display: none;
-            flex-direction: column;
-            justify-content: flex-start;
-            height: auto;
             position: relative;
-            min-height: auto;
+            border-radius: 20px;
+            box-sizing: border-box;
+            color: var(--om-text-white);
+            isolation: isolate;
+            overflow: hidden; 
         }
 
-        #results-section #popup-injection-wrapper {
-            min-height: auto !important;
-            height: auto !important;
-            padding: 20px 0 !important;
+        #om-widget-root * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        /* --- ANIMÁCIÓK --- */
+        @keyframes om-fade-in-up { 0% { opacity: 0; transform: translateY(20px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes om-fade-out-up { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-20px) scale(0.95); } }
+        @keyframes om-fade-out-down { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(30px); } }
+
+        /* Osztályok */
+        #om-widget-root .om-hero-leaving { animation: om-fade-out-up 0.4s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards !important; }
+        #om-widget-root .om-hero-entering { animation: om-fade-in-up 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important; }
+        #om-widget-root .om-exiting .mobile-frame { animation: om-fade-out-down 0.5s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards !important; animation-fill-mode: both !important; }
+        #om-widget-root .om-exiting .mobile-frame:nth-child(4) { animation-delay: 0s !important; }
+        #om-widget-root .om-exiting .mobile-frame:nth-child(3) { animation-delay: 0.1s !important; }
+        #om-widget-root .om-exiting .mobile-frame:nth-child(2) { animation-delay: 0.2s !important; }
+        #om-widget-root .om-exiting .mobile-frame:nth-child(1) { animation-delay: 0.3s !important; }
+
+        /* Section wrapper */
+        #om-widget-root .om-section-wrapper {
+            width: 100%; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        .container {
-            width: 90%;
-            max-width: 1100px;
-            text-align: center;
+        /* Scroll Content */
+        #om-widget-root #popup-injection-wrapper,
+        #om-widget-root #om-injected-content #popup-injection-wrapper {
+            min-height: 0 !important; height: auto !important; margin: 0 auto !important; padding: 0 !important;
+            display: block !important; max-height: 610px; overflow-y: auto; width: 100%;
+        }
+        #om-widget-root #popup-injection-wrapper::-webkit-scrollbar { display: none; }
+        #om-widget-root #popup-injection-wrapper { -ms-overflow-style: none; scrollbar-width: none; }
+
+        #om-widget-root #om-hero-view { opacity: 1; display: flex; width: 100%; }
+        #om-widget-root #om-results-view { opacity: 0; display: none; width: 100%; }
+
+        /* --- DESIGNELEMEK --- */
+        #om-widget-root .om-container { width: 100%; max-width: 1100px; text-align: center; margin: 0 auto; }
+        #om-widget-root .om-content-left { max-width: 700px; margin: 0 auto; }
+
+        #om-widget-root .om-ai-badge {
+            display: inline-flex; align-items: center; justify-content: center; padding: 8px 20px;
+            background: rgb(255, 255, 255); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 30px;
+            margin-bottom: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        #om-widget-root .om-ai-badge img { display: block; height: 22px; width: auto; border: none; margin: 0; }
+
+        #om-widget-root h1 {
+            font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin: 0 0 1.5rem 0;
+            color: #ffffff; text-transform: none; text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
-        .content-left {
-            max-width: 600px;
-            margin: 0 auto;
+        #om-widget-root p.om-sub-text {
+            font-size: 1.2rem; color: var(--om-text-grey); margin: 0 0 2.5rem 0; font-weight: 400; line-height: 1.5;
         }
 
-        .ai-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 16px;
-            background: rgb(255, 255, 255);
-            border: 1px solid #ffffff;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #ffffff;
-            margin-bottom: 1.5rem;
-            background-image: rgba(255, 255, 255, 0.445);
-            background-origin: border-box;
-            background-clip: padding-box, border-box;
-            box-shadow: 0 0px 15px rgb(255, 255, 255);
+        #om-widget-root .om-input-group {
+            display: flex; background: var(--om-input-bg); border: 1px solid var(--om-input-border); border-radius: 12px;
+            padding: 8px; max-width: 550px; margin: 0 auto; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); flex-wrap: wrap; gap: 10px;
+        }
+
+        #om-widget-root input[type="text"] {
+            flex-grow: 1; background: transparent; border: none; padding: 16px 20px; font-size: 1.1rem; color: black; outline: none; min-width: 200px;
+        }
+
+        #om-widget-root .om-primary-btn {
+            background: linear-gradient(to right, var(--om-btn-start), var(--om-btn-end));
+            color: white; border: none; padding: 0 32px; height: 56px; border-radius: 8px;
+            font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;
+            display: flex; justify-content: center; align-items: center; flex-grow: 1; max-width: 160px;
+        }
+        #om-widget-root .om-primary-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 107, 74, 0.5); }
+
+        #om-widget-root .om-loader {
+            border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 3px solid #ffffff; width: 24px; height: 24px; animation: om-spin 1s linear infinite;
+        }
+        @keyframes om-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #om-widget-root .om-restart-container { margin: 20px 0 0 0; display: flex; justify-content: center; width: 100%; }
+
+        /* --- MOBIL OPTIMALIZÁLÁS (MAX 768px) --- */
+        @media (max-width: 768px) {
+            /* A fő keret paddingjának csökkentése, hogy több hely maradjon */
+            #om-widget-root { padding: 15px; }
+            
+            /* Címsor méretének csökkentése, hogy ne lógjon ki */
+            #om-widget-root h1 { font-size: 2.2rem; margin-bottom: 1rem; }
+            
+            /* Szöveg méretének igazítása */
+            #om-widget-root p.om-sub-text { font-size: 1rem; margin-bottom: 2rem; }
+            
+            /* Az input csoport átalakítása oszlopos elrendezésre */
+            #om-widget-root .om-input-group { 
+                flex-direction: column; 
+                padding: 6px; 
+                gap: 8px;
+                width: 100%; /* Kitölti a rendelkezésre álló helyet */
+            }
+            
+            /* Input mező igazítása */
+            #om-widget-root input[type="text"] {
+                width: 100%;
+                text-align: center; /* Mobilon gyakran jobb középen */
+                padding: 14px;
+            }
+            
+            /* Gomb teljes szélességűvé tétele */
+            #om-widget-root .om-primary-btn { 
+                width: 100%; 
+                max-width: none; 
+                height: 50px; 
+            }
+            
+            /* A badge kisebb paddinggal */
+            #om-widget-root .om-ai-badge { padding: 6px 16px; margin-bottom: 1rem; }
+            #om-widget-root .om-ai-badge img { height: 18px; }
+            
+            /* A külső konténer magasságának felülírása mobilon (opcionális, ha a szülő engedi) */
+            /* .aipopupcontainer { height: auto !important; min-height: 600px; } */
         }
         
-        .ai-badge span { margin-right: 8px; }
-
-        h1 {
-            font-size: 4rem;
-            font-weight: 700;
-            line-height: 1.1;
-            margin: 0 0 1.5rem 0;
-            color: #e0e0e0;
-        }
-
-        .sub-text {
-            font-size: 1.2rem;
-            color: var(--text-grey);
-            margin-bottom: 3rem;
-            font-weight: 400;
-        }
-
-        .input-group {
-            display: flex;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 12px;
-            padding: 6px;
-            max-width: 500px;
-            margin: 0 auto;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-        }
-
-        input[type="text"] {
-            flex-grow: 1;
-            background: transparent;
-            border: none;
-            padding: 16px 20px;
-            font-size: 1rem;
-            color: var(--text-white);
-            font-family: inherit;
-            outline: none;
-        }
-        input[type="text"]::placeholder { color: #7a728a; }
-
-        .primary-btn {
-            background: linear-gradient(to right, var(--btn-orange-start), var(--btn-orange-end));
-            color: white;
-            border: none;
-            padding: 0 32px;
-            height: 54px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
-            white-space: nowrap;
-            min-width: 140px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .primary-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 74, 0.4);
-        }
-        
-        .primary-btn:disabled { opacity: 0.8; cursor: wait; }
-
-        .restart-btn-container {
-            margin-top: 20px;
-            margin-bottom: 80px;
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            z-index: 100;
-        }
-
-        .secondary-btn {
-            background: linear-gradient(to right, var(--btn-orange-start), var(--btn-orange-end));
-
-            color: white;
-            padding: 14px 40px;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .secondary-btn:hover {
-            background: var(--btn-orange-start);;
-            border-color: var(--btn-orange-start);
-            color: white;
-            background: rgba(255, 107, 74, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .loader {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 3px solid #ffffff;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        #injected-content {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-
-        @media (max-width: 968px) {
-            h1 { font-size: 3rem; }
-            .input-group { width: 100%; }
+        /* --- EXTRA KICSI MOBILOK (MAX 480px) --- */
+        @media (max-width: 480px) {
+            #om-widget-root h1 { font-size: 1.8rem; }
+            #om-widget-root { padding: 10px; border-radius: 12px; }
         }
     </style>
-</head>
-<body>
 
-    <div id="hero-section" class="section-wrapper">
-        <div class="container">
-            <div class="content-left">
-                <div class="ai-badge">
-                    <img src="https://optimonk.hu/wp-content/uploads/optimonk-logo-2024-1.svg" alt="">
+    <div id="om-hero-view" class="om-section-wrapper">
+        <div class="om-container">
+            <div class="om-content-left">
+                <div class="om-ai-badge">
+                    <img src="https://optimonk.hu/wp-content/uploads/optimonk-logo-2024-1.svg" alt="OptiMonk">
                 </div>
-                <h1>
-                    Smarter Popups<br>
-                    made by OptiMonk
-                </h1>
-                <p class="sub-text">
-                    Enter your online store URL to create AI popup previews.
-                </p>
+                <h1>Smarter Popups<br>made by OptiMonk</h1>
+                <p class="om-sub-text">Enter your online store URL to create AI popup previews.</p>
 
-                <div class="input-group">
-                    <input type="text" id="domainUrl" placeholder="Enter online store URL" required>
-                    <button id="generateBtn" class="primary-btn">Get started</button>
+                <div class="om-input-group">
+                    <input type="text" id="om-url-input" placeholder="Enter online store URL" required>
+                    <button id="om-gen-btn" class="om-primary-btn">Get started</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="results-section" class="section-wrapper">
-        <div id="injected-content"></div>
-        <div class="restart-btn-container">
-            <button id="restartBtn" class="primary-btn">Generate Again</button>
+    <div id="om-results-view" class="om-section-wrapper">
+        <div id="om-injected-content"></div>
+        <div class="om-restart-container">
+            <button id="om-restart-btn" class="om-primary-btn">Generate Again</button>
         </div>
     </div>
 
     <script>
+    (function() {
         const WEBHOOK_URL = 'https://omaigen.tamas-papp.workers.dev';
-
-        const heroSection = document.getElementById('hero-section');
-        const resultsSection = document.getElementById('results-section');
-        const injectedContent = document.getElementById('injected-content');
         
-        const generateBtn = document.getElementById('generateBtn');
-        const restartBtn = document.getElementById('restartBtn');
-        const urlInput = document.getElementById('domainUrl');
+        const heroSection = document.getElementById('om-hero-view');
+        const resultsSection = document.getElementById('om-results-view');
+        const injectedContent = document.getElementById('om-injected-content');
+        const generateBtn = document.getElementById('om-gen-btn');
+        const restartBtn = document.getElementById('om-restart-btn');
+        const urlInput = document.getElementById('om-url-input');
 
+        // --- GENERÁLÁS INDÍTÁSA ---
         generateBtn.addEventListener('click', async () => {
             const inputVal = urlInput.value.trim();
-
-            if (!inputVal) {
-                shakeInput();
-                return;
-            }
+            if (!inputVal) { shakeInput(); return; }
 
             const originalBtnText = generateBtn.innerHTML;
-            generateBtn.innerHTML = '<div class="loader"></div>';
+            generateBtn.innerHTML = '<div class="om-loader"></div>';
             generateBtn.disabled = true;
 
             try {
                 const fullUrl = `${WEBHOOK_URL}?url=${encodeURIComponent(inputVal)}`;
-                const response = await fetch(fullUrl, { method: 'POST' });
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 120000);
+
+                const response = await fetch(fullUrl, { 
+                    method: 'POST',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
 
                 if (response.ok) {
                     const htmlContent = await response.text();
                     injectedContent.innerHTML = htmlContent;
 
-                    heroSection.style.opacity = '0';
-                    heroSection.style.pointerEvents = 'none';
+                    // Hero eltüntetése animációval
+                    heroSection.classList.remove('om-hero-entering'); 
+                    heroSection.classList.add('om-hero-leaving');
 
                     setTimeout(() => {
                         heroSection.style.display = 'none';
-                        
                         resultsSection.style.display = 'flex';
-                        resultsSection.style.position = 'relative'; 
-
+                        resultsSection.style.flexDirection = 'column';
+                        
                         setTimeout(() => {
                             resultsSection.style.opacity = '1';
                             resultsSection.style.pointerEvents = 'auto';
                         }, 50);
-
-                    }, 300); 
+                    }, 400); 
 
                 } else {
-                    alert('Hiba történt. Próbáld újra.');
+                    let errorMessage = "Oops! Something went wrong. Please try again.";
+                    try {
+                        const errorText = await response.text();
+                        if (errorText && errorText.length < 100 && !errorText.includes('<html')) {
+                            console.warn("Server Error Detail:", errorText);
+                        }
+                    } catch(e) {}
+
+                    if (response.status === 524) {
+                        errorMessage = "Generation timed out. The AI is taking longer than expected. Please try again later.";
+                    } else if (response.status === 500) {
+                        errorMessage = "The AI service encountered an error. We are working on it, please try again in a few minutes.";
+                    } else if (response.status === 400) {
+                        errorMessage = "Invalid URL or request. Please check the website address and try again.";
+                    } else if (response.status === 429) {
+                        errorMessage = "Too many requests! Please wait a moment before trying again.";
+                    }
+                    alert(errorMessage);
                 }
 
             } catch (error) {
-                console.error('Hiba:', error);
-                alert('Nem sikerült elérni a szervert.');
+                console.error('Network/Script Error:', error);
+                if (error.name === 'AbortError') {
+                     alert("The request timed out. The server is taking too long to respond.");
+                } else {
+                     alert("Unable to connect to the server. Please check your internet connection.");
+                }
             } finally {
                 generateBtn.innerHTML = originalBtnText;
                 generateBtn.disabled = false;
             }
         });
 
+        // --- ÚJRAKEZDÉS ---
         restartBtn.addEventListener('click', () => {
-            resultsSection.style.opacity = '0';
-            resultsSection.style.pointerEvents = 'none';
+            resultsSection.classList.add('om-exiting');
 
             setTimeout(() => {
                 resultsSection.style.display = 'none';
+                resultsSection.style.opacity = '0'; 
+                resultsSection.classList.remove('om-exiting');
                 injectedContent.innerHTML = ''; 
 
-                heroSection.style.display = 'flex'; 
-                heroSection.style.position = 'absolute'; 
+                heroSection.style.display = 'flex';
                 urlInput.value = '';
                 
-                setTimeout(() => {
-                    heroSection.style.opacity = '1';
-                    heroSection.style.pointerEvents = 'auto';
-                }, 50);
+                heroSection.classList.remove('om-hero-leaving');
+                heroSection.classList.add('om-hero-entering');
+                
+                heroSection.style.opacity = '1';
+                heroSection.style.pointerEvents = 'auto';
 
-            }, 300);
+            }, 800); 
         });
 
         urlInput.addEventListener('keypress', function (e) {
@@ -332,14 +306,18 @@
         });
 
         function shakeInput() {
-            urlInput.style.borderColor = '#ff4a4a';
+            urlInput.style.border = '1px solid #ff4a4a';
+            const originalPlaceholder = urlInput.placeholder;
             urlInput.placeholder = 'Please enter a URL first!';
             setTimeout(() => {
-                 urlInput.style.borderColor = '#4a4063';
-                 urlInput.placeholder = 'Enter online store URL';
+                 urlInput.style.border = '1px solid #4a4063';
+                 urlInput.placeholder = originalPlaceholder;
             }, 2000);
         }
+    })();
     </script>
+    </div>
+</div>
 </body>
 
 </html>
